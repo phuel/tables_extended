@@ -27,6 +27,8 @@ PIPE_RIGHT = 2
 class TableProcessor(BlockProcessor):
     """ Process Tables. """
 
+    SEPARATOR_CHARS_SET = set('|:- ')
+
     RE_CODE_PIPES = re.compile(r'(?:(\\\\)|(\\`+)|(`+)|(\\\|)|(\|))')
     RE_END_BORDER = re.compile(r'(?<!\\)(?:\\\\)*\|$')
 
@@ -44,13 +46,26 @@ class TableProcessor(BlockProcessor):
         is_table = False
         rows = [row.strip(' ') for row in block.split('\n')]
         if len(rows) > 1:
-            header0 = rows[0]
+            # The separator row can either be the first or the second row.
+            # If the separator row is the first row, no table header is generated.
+            self.separator_row = self._get_separator_row(rows)
+            if self.separator_row < 0:
+                return False
+
+            self.separator = self._split_row(rows[self.separator_row])
+            
+            # Use the first row (separator or text) to determine the border.
+            row0 = rows[0]
             self.border = PIPE_NONE
-            if header0.startswith('|'):
+            if row0.startswith('|'):
                 self.border |= PIPE_LEFT
-            if self.RE_END_BORDER.search(header0) is not None:
+            if self.RE_END_BORDER.search(row0) is not None:
                 self.border |= PIPE_RIGHT
-            row = self._split_row(header0)
+            
+            # Use the first text row to determine the column count.
+            if self.separator_row == 0:
+                row0 = rows[1]
+            row = self._split_row(row0)
             row0_len = len(row)
             is_table = row0_len > 1
 
@@ -64,8 +79,8 @@ class TableProcessor(BlockProcessor):
                         break
 
             if is_table:
-                row = self._split_row(rows[1])
-                is_table = (len(row) == row0_len) and set(''.join(row)) <= set('|:- ')
+                row = self._split_row(rows[self.separator_row])
+                is_table = (len(row) == row0_len) and set(''.join(row)) <= self.SEPARATOR_CHARS_SET
                 if is_table:
                     self.separator = row
 
@@ -74,8 +89,13 @@ class TableProcessor(BlockProcessor):
     def run(self, parent, blocks):
         """ Parse a table block and build table. """
         block = blocks.pop(0).split('\n')
-        header = block[0].strip(' ')
-        rows = [] if len(block) < 3 else block[2:]
+        header = None
+        rows = None
+        if self.separator_row > 0:
+            header = block[0].strip(' ')
+            rows = block[2:]
+        else:
+            rows = block[1:]
 
         # Get alignment of columns
         align = []
@@ -92,8 +112,9 @@ class TableProcessor(BlockProcessor):
 
         # Build table
         table = etree.SubElement(parent, 'table')
-        thead = etree.SubElement(table, 'thead')
-        self._build_row(header, thead, align)
+        if header is not None:
+            thead = etree.SubElement(table, 'thead')
+            self._build_row(header, thead, align)
         tbody = etree.SubElement(table, 'tbody')
         if len(rows) == 0:
             # Handle empty table
@@ -102,6 +123,15 @@ class TableProcessor(BlockProcessor):
             for row in rows:
                 self._build_row(row.strip(' '), tbody, align)
 
+    def _get_separator_row(self, rows):
+        """Search for the separator row.
+           Returns the row index (either 0, 1 or -1 (if no separator row has been found))."""
+        if set(''.join(rows[0])) <= self.SEPARATOR_CHARS_SET:
+            return 0
+        if set(''.join(rows[1])) <= self.SEPARATOR_CHARS_SET:
+            return 1
+        return -1
+       
     def _build_empty_row(self, parent, align):
         """Build an empty row."""
         tr = etree.SubElement(parent, 'tr')
@@ -216,7 +246,7 @@ class TableExtension(Extension):
         """ Add an instance of TableProcessor to BlockParser. """
         if '|' not in md.ESCAPED_CHARS:
             md.ESCAPED_CHARS.append('|')
-        md.parser.blockprocessors.register(TableProcessor(md.parser), 'table', 75)
+        md.parser.blockprocessors.register(TableProcessor(md.parser), 'table-extended', 75)
 
 
 def makeExtension(**kwargs):  # pragma: no cover
