@@ -1,18 +1,38 @@
 """
-Tables Extension for Python-Markdown
-====================================
+Extended Tables Extension for Python-Markdown
+=============================================
 
-Added parsing of tables to Python-Markdown.
+Allows to create tables with colspans and rowspans and optional
+header with Python-Markdown
 
-See <https://Python-Markdown.github.io/extensions/tables>
-for documentation.
+Copyright 2021 phuel
 
-Original code Copyright 2009 [Waylan Limberg](http://achinghead.com)
+License: [BSD](http://www.opensource.org/licenses/bsd-license.php)
 
-All changes Copyright 2008-2014 The Python Markdown Project
+based on:
 
-License: [BSD](https://opensource.org/licenses/bsd-license.php)
+    Tables Extension for Python-Markdown
+    ====================================
 
+    Added parsing of tables to Python-Markdown.
+
+    See <https://Python-Markdown.github.io/extensions/tables>
+    for documentation.
+
+    Original code Copyright 2009 [Waylan Limberg](http://achinghead.com)
+
+    All changes Copyright 2008-2014 The Python Markdown Project
+
+    License: [BSD](https://opensource.org/licenses/bsd-license.php)
+
+And
+
+    Table Cell and Row Span extension for Python Markdown
+    =====================================================
+
+    Adds spanning for rows and cells in tables.
+
+    License: [BSD](http://www.opensource.org/licenses/bsd-license.php)
 """
 
 from markdown import Extension
