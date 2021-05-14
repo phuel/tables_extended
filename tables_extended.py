@@ -32,6 +32,9 @@ And
 
     Adds spanning for rows and cells in tables.
 
+    Author:  Neepawa
+
+
     License: [BSD](http://www.opensource.org/licenses/bsd-license.php)
 """
 
