@@ -153,7 +153,7 @@ class TableProcessor(BlockProcessor):
         if header is not None:
             thead = etree.SubElement(table, 'thead')
             cells = self._parse_row(header, align)
-            self._collect_spans([ cells ])
+            self._merge_spans([ cells ])
             self._build_row(cells, thead)
         tbody = etree.SubElement(table, 'tbody')
         if len(rows) == 0:
@@ -164,7 +164,7 @@ class TableProcessor(BlockProcessor):
             for row in rows:
                 row_cells = self._parse_row(row, align)
                 cells.append(row_cells)
-            self._collect_spans(cells)
+            self._merge_spans(cells)
             for row in cells:
                 self._build_row(row, tbody)
 
@@ -206,13 +206,13 @@ class TableProcessor(BlockProcessor):
                c.set('valign', cell.valign)
             
 
-    def _collect_spans(self, rows):
+    def _merge_spans(self, rows):
         """Transforms adjacent empty cells into colspans or rowspans."""
         for row_index in range(len(rows)):
             for col_index in range(len(rows[row_index])):
-                self._collect_spans_for_cell(rows, row_index, col_index)
+                self._merge_spans_for_cell(rows, row_index, col_index)
 
-    def _collect_spans_for_cell(self, rows, row_index, col_index):
+    def _merge_spans_for_cell(self, rows, row_index, col_index):
         """Starting from one cell transforms adjacent empty cells into colspans or rowspans."""
         nrows = len(rows)
         row = rows[row_index]
@@ -247,9 +247,13 @@ class TableProcessor(BlockProcessor):
                     cell.rowspan += 1
                     if self.RE_valign_top.match(text):
                         cell.valign = 'top'
-                    elif self.RE_valign_bottom.match(text):
+                    if self.RE_valign_bottom.match(text):
+                        if cell.valign is not None:
+                            raise ValueError('Can only use one of ^ (top), - (middle) or = (bottom) codes in one row span marker.')
                         cell.valign = 'bottom'
-                    elif self.RE_valign_middle.match(text):
+                    if self.RE_valign_middle.match(text):
+                        if cell.valign is not None:
+                            raise ValueError('Can only use one of ^ (top), - (middle) or = (bottom) codes in one row span marker.')
                         cell.valign = 'middle'
                     rowspan_found = True
                     break

@@ -1,7 +1,10 @@
 
 import unittest
+import markdown
+
 from extension_testcase import ExtensionTestCase
 
+from tables_extended import TableExtension
 
 class TestExtensionForCompatibility(ExtensionTestCase):
     def test_compatibilty(self):
@@ -65,6 +68,33 @@ Content Cell  |  
 </tbody>
 </table>
 """)
+
+
+    def test_multiple_alignments_are_not_allowed(self):
+        input = """
+| Column 1              |
+|-----------------------|
+| r1_c1 spans two cols  |
+|_^=                   _| 
+"""
+        self.assertRaises(ValueError, markdown.markdown, input, extensions=[TableExtension()])
+
+        input = """
+| Column 1              |
+|-----------------------|
+| r1_c1 spans two cols  |
+|_^-                   _| 
+"""
+        self.assertRaises(ValueError, markdown.markdown, input, extensions=[TableExtension()])
+
+        input = """
+| Column 1              |
+|-----------------------|
+| r1_c1 spans two cols  |
+|_-=                   _| 
+"""
+        self.assertRaises(ValueError, markdown.markdown, input, extensions=[TableExtension()])
+
 
 if __name__ == '__main__':
     unittest.main()

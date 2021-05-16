@@ -8,7 +8,9 @@ This is an extended version of the [tables](https://python-markdown.github.io/ex
 
 ## Syntax
 
-The `tables_extended` extension can be used to create tables using markdown:
+### Basic  table creation
+
+The `tables_extended` extension can be used to create tables using markdown like the default [tables](https://python-markdown.github.io/extensions/tables/) extension:
 
 ```text
 First Header  | Second Header
@@ -46,6 +48,8 @@ renders as
 `-------------------------------------------`
 ```
 
+### Tables without header
+
 If no row is provided above the separator line, no header is generated:
 
 ```text
@@ -63,13 +67,7 @@ becomes
 `-----------------`
 ```
 
-Like with the `cell_row_span` extension empty cells are replaced horizontally using the `colspan` attribute on the next non-empty cell to the left.
-
-Empty cells below a cell until a cell containing an underscore as the first and the last character are replaced with a `rowspan` attribute on the non-empty cell. By default the text in a cell with a rowspan is vertically aligned with e default alignment `baseline`. Other vertical alignments can be selected by adding a special character after the first underscore in the terminating line.
-
-* `^` sets an alignmen to the top
-* `-` sets middle alignment (new with `tables_extended`)
-* `=` sets bottom aligment
+### Merging of columns or rows
 
 ```text
 | Column 1                | Col 2 | Big row span   |
@@ -95,6 +93,55 @@ The example renders as:
 |          ____           | r4_c2 |                |
 `--------------------------------------------------'
 ```
+
+To span cells across multiple columns, end them with two or more consecutive
+vertical bars. Cells to the left will be merged together, as many cells are
+there are bars. In the example above, there are two bars at the end of cell
+2 on row 1, so the two cells to the left of it (numbers 1 and 2) are merged.
+
+To span cells across rows, fill the cell on the last row with at least two
+underscores, one at the start and the other at the end of its content, and no
+other characters than spaces, underscores, `^`, `-` or `=`. This is referred to as
+the *marker.* The cell with the marker and all the empty cells above it to the
+first non-empty cell will be made into a single cell, with the content of the
+non-empty cell. See column 3 ("Big row span") in the example.
+
+By default the contents are vertically aligned using `baseline` alignment, which
+is the default used by browsers. To
+align to the top, include at least one `^` character in the marker between the
+two underscores; for example, `|_^^^_|` or simply `|_^   _|`. See row 2 in
+column 1 of the example, which is merged with row 3 and aligned at the top. To
+align to the bottom, use at least one `=` character between the underscores;
+for example, `|_ = _|`. To align in the middle of the cell, include at least
+one `-` character in the marker row. Including more than one of `^`, `-` and `=`
+in a marker raises a `ValueError` exception.
+
+Note: If this extension finds a cell with at least two underscores and no other
+characters other than spaces, `^` or `=`, it assumes it's a row span marker and
+attempts to process it. If you need a cell that looks like a marker (generally
+one with only underscores in it), add the text `&#20;` as well---this extension
+won't process it as a row span marker and Markdown will change the `&#20;` to a
+space.
+
+* `^` sets an alignmen to the top
+* `-` sets middle alignment (new with `tables_extended`)
+* `=` sets bottom aligment
+
+
+
+## Installation
+
+Either clone this repository or download the released package from github and unpack it.
+
+In the directory `tables_extended` can be installed using `install.sh`, which installs the package using `pip`:
+```bash
+pip install .
+```
+or use the `setup.py` script:
+```bash
+python setup.py install --user
+```
+
 
 ## Usage
 
