@@ -116,6 +116,11 @@ for example, `|_ = _|`. To align in the middle of the cell, include at least
 one `-` character in the marker row. Including more than one of `^`, `-` and `=`
 in a marker raises a `ValueError` exception.
 
+Vertical alignment codes:
+* `^` sets an alignmen to the top
+* `-` sets middle alignment (new with `tables_extended`)
+* `=` sets bottom aligment
+
 Note: If this extension finds a cell with at least two underscores and no other
 characters other than spaces, `^` or `=`, it assumes it's a row span marker and
 attempts to process it. If you need a cell that looks like a marker (generally
@@ -123,17 +128,13 @@ one with only underscores in it), add the text `&#20;` as well---this extension
 won't process it as a row span marker and Markdown will change the `&#20;` to a
 space.
 
-* `^` sets an alignmen to the top
-* `-` sets middle alignment (new with `tables_extended`)
-* `=` sets bottom aligment
-
-
 
 ## Installation
 
 Either clone this repository or download the released package from github and unpack it.
 
-In the directory `tables_extended` can be installed using `install.sh`, which installs the package using `pip`:
+Change into the new directory. `tables_extended` can now be installed using `install.sh`,
+which installs the package using `pip`:
 ```bash
 pip install .
 ```
