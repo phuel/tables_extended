@@ -117,14 +117,14 @@ one `-` character in the marker row. Including more than one of `^`, `-` and `=`
 in a marker raises a `ValueError` exception.
 
 Vertical alignment codes:
-* `^` sets an alignmen to the top
+* `^` sets an alignment to the top
 * `-` sets middle alignment (new with `tables_extended`)
 * `=` sets bottom aligment
 
 Note: If this extension finds a cell with at least two underscores and no other
 characters other than spaces, `^` or `=`, it assumes it's a row span marker and
 attempts to process it. If you need a cell that looks like a marker (generally
-one with only underscores in it), add the text `&#20;` as well---this extension
+one with only underscores in it), add the text `&#20;` as well --- this extension
 won't process it as a row span marker and Markdown will change the `&#20;` to a
 space.
 
